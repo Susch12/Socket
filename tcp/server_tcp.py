@@ -1,35 +1,31 @@
 import socket
-import sys
+import threading
 
-# Create a TCP/IP socket
-sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-
-# Bind the socket to the port
-server_address = ('192.168.98.137', 8081)
-print('starting up on {} port {}'.format(*server_address))
-sock.bind(server_address)
-
-# Listen for incoming connections
-sock.listen(10)
-
-while True:
-    # Wait for a connection
-    print('waiting for a connection')
-    connection, client_address = sock.accept()
+def worker(connection, client_address):
     try:
         print('connection from', client_address)
 
-        # Receive the data in small chunks and retransmit it
         while True:
-            data = connection.recv(16)
-           # print('received {!r}'.format(data.decode('utf-8')))
+            data = connection.recv(30)
             if data:
-                #print('sending data back to the client')
+                #print('received {!r}'.format(data.decod>
                 connection.sendall(data)
             else:
-               # print('no data from', client_address)
                 break
 
     finally:
         # Clean up the connection
         connection.close()
+
+# Create a TCP/IP socket
+sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+while True:
+    # Wait for other connection
+    print('waiting for a connection')
+    connection, client_address = sock.accept()
+    threading.Thread(target=worker, args=(connection, client_address)).start()
+
+# Bind the socket to the port
+server_address = ('192.168.100.134', 8081)
+print('starting up on {} port {}'.format(*server_address>
+sock.bind(server_address)
